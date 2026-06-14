@@ -18,14 +18,27 @@ public class Scenario1 extends BaseClass {
         // Step 2: Add/commit your outline of comments (required for full credit)
         // Step 3: Add code to solve the problem (add/commit as needed)
         // Start Solution Edits
-       
+        // omg6 June 14 th; solved by looping through the array and finding out if the indexes are odd with the if statment and used the boolean to skip the leading commas.
+       boolean isFirst = true;
+       for (int i = 0; i < arr.length; i++) {
+           if (arr[i] % 2 != 0) {
+               if (!isFirst) {
+                   System.out.print(", ");
+            }
+            System.out.print(arr[i]);
+            isFirst = false;
+        }
+
+       }
+
+
 
         // End Solution Edits
         System.out.println("");
         System.out.println("______________________________________");
     }
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "omg6"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 1);
         printOdds(array1,1);
