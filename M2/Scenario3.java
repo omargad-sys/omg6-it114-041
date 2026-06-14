@@ -21,14 +21,35 @@ public class Scenario3 extends BaseClass {
         // Step 3: Add code to solve the problem (add/commit as needed)
         Object[] output = new Object[arr.length];
         // Start Solution Edits
-        
+        //omg6 june 14, 
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] instanceof Integer) {
+                int value = (Integer) arr[i];
+                output[i] = Math.abs(value);
+            }
+            else if (arr[i] instanceof Double) {
+                double value = (Double) arr[i];
+                output[i] = Math.abs(value);
+            }
+            else if (arr[i] instanceof Float) {
+                float value = (Float) arr[i];
+                output[i] = Math.abs(value);
+            }
+            else if (arr[i] instanceof String) {
+                String value = (String) arr[i];
+                if (value.startsWith("-")) {
+                    value = value.substring(1);
+                }
+                output [i]=value;
+            }
+        }
 
         // End Solution Edits
         printOutputWithType(output, true);
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "omg6"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 3);
         bePositive(array1, 1);
