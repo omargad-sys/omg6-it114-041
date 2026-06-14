@@ -21,7 +21,7 @@ public class Scenario3 extends BaseClass {
         // Step 3: Add code to solve the problem (add/commit as needed)
         Object[] output = new Object[arr.length];
         // Start Solution Edits
-        //omg6 june 14, 
+        //omg6 june 14, used the instanceof operator to tell java which data type,then used Math.abs to convert into postive, and for the string I had to use the startsWith to get rid of the negatives
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] instanceof Integer) {
                 int value = (Integer) arr[i];
