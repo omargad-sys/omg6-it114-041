@@ -25,17 +25,24 @@ public class Scenario2 extends BaseClass {
         double total = 0;
         // Start Solution Edits
         // Solve Challenge 1 here
-       
+        // omg6 june 14th, used the accumilator tosum values in the array
+        for (int i = 0; i < arr.length; i++) {
+            total += arr[i];
+       }
       
         // Solve Challenge 2 here
         Object modifiedTotal = "?";
-        
+        // omg6 june 14, solved by using the string format operator and the %.2f to specify how mnay spaces.
+        modifiedTotal = String.format("%.2f", total);
+
+
+
         // End Solution Edits
         printScenario2Output(total, modifiedTotal);
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "omg6"; // <-- change to your UCID
         // no edits below this line
         printHeader(ucid, 2);
         sumValues(array1, 1);
