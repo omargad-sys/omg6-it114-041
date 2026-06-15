@@ -33,8 +33,26 @@ public class Scenario4 extends BaseClass {
         String placeholderForMiddleCharacters = "";
         
         for(int i = 0; i <arr.length; i++){
-            // Start Solution Edits
-            
+            // Start Solution Edits omg6 june 14, used replaceAll with a regex to delete any character that isn't a letter, digit, or space.
+            String phrase = arr[i]; 
+            phrase = phrase.replaceAll("[^a-zA-Z0-9 ]", "");
+            phrase = phrase.trim(); // trimmed the ends and collapsed runs of spaces into a single space.
+            phrase = phrase.replaceAll("\\s+", " ");
+
+            String[] words = phrase.split(" ");        //  split the phrase into words, then uppercased each word's first letter and lowercased the rest before rejoining them.
+        StringBuilder sb = new StringBuilder();      
+        for (int w = 0; w < words.length; w++) {
+         if (words[w].length() > 0) {            
+        String first = words[w].substring(0, 1).toUpperCase();
+        String rest  = words[w].substring(1).toLowerCase();     
+        sb.append(first).append(rest);
+    }
+    if (w < words.length - 1) {
+        sb.append(" ");                   
+    }
+}
+phrase = sb.toString();
+            placeholderForModifiedPhrase = phrase; 
             // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"",i, placeholderForModifiedPhrase, placeholderForMiddleCharacters));
         }
@@ -43,7 +61,7 @@ public class Scenario4 extends BaseClass {
     }
 
     public static void main(String[] args) {
-        final String ucid = "mt85"; // <-- change to your UCID
+        final String ucid = "omg6"; // <-- change to your UCID
         // No edits below this line
         printHeader(ucid, 4);
 
