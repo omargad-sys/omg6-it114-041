@@ -1,5 +1,7 @@
 package M3;
 
+import java.util.Random;
+
 /*
 Challenge 2: Simple Slash Command Handler
 -----------------------------------------
@@ -17,42 +19,62 @@ Challenge 2: Simple Slash Command Handler
 import java.util.Scanner;
 
 public class SlashCommandHandler extends BaseClass {
-    private static String ucid = "mt85"; // <-- change to your UCID
+    private static String ucid = "omg6"; // <-- change to your UCID
 
     public static void main(String[] args) {
         printHeader(ucid, 2, "Objective: Implement a simple slash command parser.");
 
         Scanner scanner = new Scanner(System.in);
+        Random rand = new Random();
 
         // Can define any variables needed here
 
         while (true) {
             System.out.print("Enter command: ");
+            String input = scanner.nextLine().trim();
             // get entered text
+            String[] parts = input.split("\\s+", 2);
+            String command = parts[0].toLowerCase();
+            String argument = parts.length > 1 ? parts[1].trim() : "";
 
-            // check if greet
-            //// process greet
+            switch (command) {
+                case "greet":
+                    if (argument.isEmpty()) {
+                        System.out.println("Invalid format. use greet <name>");
+                    } else {
+                        System.out.println("Hello, " + argument + "!");
+                    }
+                    break;
 
-            // check if roll
-            //// process roll
-            //// handle invalid formats
+                case "roll":
+                    if (!argument.toLowerCase().matches("\\d+d\\d+")) {
+                        System.out.println("Invalid format.  use roll <num>d<sides>");
+                    } else {
+                        String[] diceParts = argument.toLowerCase().split("d");
+                        int numDice = Integer.parseInt(diceParts[0]);
+                        int sides = Integer.parseInt(diceParts[1]);
+                        for (int i = 0; i < numDice; i++) {
+                                    int total = 0;
+                            total += rand.nextInt(sides) + 1;
+                        }
+                        System.out.println("Rolled " + numDice + "d" + sides + " and got " + total + "!");
+                    }
+                    break;
 
-            // check if echo
-            //// process echo
+                case "echo":
+                    System.out.println(argument);
+                    break;
 
-            // check if quit
-            //// process quit
+                case "quit":
+                    System.out.println("Exiting program");
+                    printFooter(ucid, 2);
+                  scanner.close();
 
-            // handle invalid commnads
+                    return;
 
-            // delete this condition/block, it's just here so the sample runs without edits
-            if (1 == 1) {
-                System.out.println("Breaking loop");
-                break;
+                default:
+                    System.out.println("Unrecognized command: " + input);
             }
         }
-
-        printFooter(ucid, 2);
-        scanner.close();
     }
 }
