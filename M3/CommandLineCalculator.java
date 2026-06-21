@@ -13,7 +13,7 @@ Challenge 1: Command-Line Calculator
 
 public class CommandLineCalculator extends BaseClass {
     private static String ucid = "omg6"; // <-- change to your ucid
-// omg6, 
+// omg6, solved with parsing two numbers that checks + or - is used, solves the equation and formats output to match input numbers
     public static void main(String[] args) {
         printHeader(ucid, 1, "Objective: Implement a calculator using command-line arguments.");
 
