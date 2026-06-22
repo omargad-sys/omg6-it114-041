@@ -22,7 +22,7 @@ Challenge 3: Mad Libs Generator (Randomized Stories)
 public class MadLibsGenerator extends BaseClass {
     private static final String STORIES_FOLDER = "M3/stories";
     private static String ucid = "omg6"; // <-- change to your ucid
-// picks a random story, find the placeholder tags with a regex pattern then sqaps answers and prints story
+// picks a random story, find the placeholder tags with a regex pattern then swaps answers and prints story
     public static void main(String[] args) {
         printHeader(ucid, 3,
                 "Objective: Implement a Mad Libs generator that replaces placeholders dynamically.");
