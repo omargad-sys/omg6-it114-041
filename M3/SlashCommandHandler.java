@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class SlashCommandHandler extends BaseClass {
     private static String ucid = "omg6"; // <-- change to your UCID
-
+// used a switch statment to go through all the scenarios with a default clause. also used .toLowerCase to ensure all text works.
     public static void main(String[] args) {
         printHeader(ucid, 2, "Objective: Implement a simple slash command parser.");
 
@@ -53,8 +53,9 @@ public class SlashCommandHandler extends BaseClass {
                         String[] diceParts = argument.toLowerCase().split("d");
                         int numDice = Integer.parseInt(diceParts[0]);
                         int sides = Integer.parseInt(diceParts[1]);
+                        int total = 0;
                         for (int i = 0; i < numDice; i++) {
-                                    int total = 0;
+                           
                             total += rand.nextInt(sides) + 1;
                         }
                         System.out.println("Rolled " + numDice + "d" + sides + " and got " + total + "!");

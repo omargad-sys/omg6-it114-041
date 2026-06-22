@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
 Challenge 3: Mad Libs Generator (Randomized Stories)
@@ -18,8 +21,8 @@ Challenge 3: Mad Libs Generator (Randomized Stories)
 
 public class MadLibsGenerator extends BaseClass {
     private static final String STORIES_FOLDER = "M3/stories";
-    private static String ucid = "mt85"; // <-- change to your ucid
-
+    private static String ucid = "omg6"; // <-- change to your ucid
+// picks a random story, find the placeholder tags with a regex pattern then sqaps answers and prints story
     public static void main(String[] args) {
         printHeader(ucid, 3,
                 "Objective: Implement a Mad Libs generator that replaces placeholders dynamically.");
@@ -34,20 +37,41 @@ public class MadLibsGenerator extends BaseClass {
             return;
         }
         List<String> lines = new ArrayList<>();
-        // Start edits
+        Random story= new Random();
+        File[] storyFiles = folder.listFiles();
+        File chosenFile = storyFiles[story.nextInt(storyFiles.length)];
 
-        // load a random story file
+        try (Scanner fileScanner = new Scanner(chosenFile)) {
+    while (fileScanner.hasNextLine()) {
+        lines.add(fileScanner.nextLine());
+    }
+} catch (java.io.FileNotFoundException e) {
+    System.out.println("Could not read the story file.");
+    printFooter(ucid, 3);
+    scanner.close();
+    return;
+}
+Pattern placeholderPattern = Pattern.compile("<([^>]+)>");
 
-        // parse the story lines
+for (int i = 0; i < lines.size(); i++) {
+    String line = lines.get(i);
+    Matcher matcher = placeholderPattern.matcher(line);
+    StringBuilder updatedLine = new StringBuilder();
+    int lastEnd = 0;
 
-        // iterate through the lines
+     while (matcher.find()) {
+        updatedLine.append(line, lastEnd, matcher.start());
 
-        // prompt the user for each placeholder (note: there may be more than one
-        // placeholder in a line)
+        String placeholder = matcher.group(1).replace("_", " ");
+        System.out.print("Enter a " + placeholder + ": ");
+        String userInput = scanner.nextLine();
 
-        // apply the update to the same collection slot
-
-        // End edits
+        updatedLine.append(userInput);
+        lastEnd = matcher.end();
+    }
+    updatedLine.append(line.substring(lastEnd));
+    lines.set(i, updatedLine.toString());
+}
         System.out.println("\nYour Completed Mad Libs Story:\n");
         StringBuilder finalStory = new StringBuilder();
         for (String line : lines) {
