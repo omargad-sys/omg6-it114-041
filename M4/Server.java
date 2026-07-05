@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/*omg6, July 4th,
+     performs coin flip,pm, and shuffle commands and displays them to the client. PM is only seen by sender and reciever    */ 
 public class Server {
     private int port = 3000;
     // thread-safe map; multiple ServerThreads may call Server methods concurrently

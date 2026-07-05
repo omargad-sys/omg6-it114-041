@@ -9,9 +9,11 @@ import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import M4.TextFX.Color;
 
+/*omg6, July 4th,
+     added /flip,/pm, and /shuffle cases to send to the sever    */ 
+        
 /**
  * Multi-client chat client using ObjectInputStream/ObjectOutputStream.
  */

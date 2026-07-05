@@ -7,8 +7,10 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Consumer;
-
 import M4.TextFX.Color;
+
+/*omg6, July 4th,
+     recieves commands from client.java and sends them to the correct handler on sever.java    */ 
 
 /**
  * Server-side handler for one connected client.
