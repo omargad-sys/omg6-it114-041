@@ -32,7 +32,10 @@ public class Client {
         DISCONNECT("/disconnect"),
         QUIT("/quit"),
         USERS("/users"),
-        REVERSE("/reverse");
+        REVERSE("/reverse"),
+        FLIP("/flip"),
+        PM("/pm"),
+        SHUFFLE("/shuffle");
 
         private final String trigger;
 
@@ -127,6 +130,22 @@ public class Client {
                 // strip "/reverse" prefix and send remainder as the text to reverse
                 String reverseText = text.replace("/reverse", "").trim();
                 sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "reverse", reverseText));
+                return true;
+                case FLIP:
+               sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "flip"));
+                  return true;
+            case PM:
+                String pmArgs = text.replace("/pm", "").trim();
+                String[] pmParts = pmArgs.split("\\s+", 2);
+                if (pmParts.length < 2) {
+                System.out.println("Invalid format. Usage: /pm targetId, message");
+                return true;
+            }
+            sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "pm", pmParts[0], pmParts[1]));
+                 return true;
+            case SHUFFLE:
+                String shuffleText = text.replace("/shuffle", "").trim();
+                sendToServer(String.join(",", Constants.COMMAND_TRIGGER, "shuffle", shuffleText));
                 return true;
             default:
                 return false;

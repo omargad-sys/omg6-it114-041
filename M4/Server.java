@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Server {
     private int port = 3000;
@@ -97,7 +100,34 @@ public class Server {
     protected synchronized void handleMessage(ServerThread sender, String text) {
         broadcast(sender, text);
     }
+protected synchronized void handleCoinFlip(ServerThread sender) {
+    String result = Math.random() < 0.5 ? "Heads" : "Tails";
+    broadcast(null, String.format("User[%s] flipped a coin and got %s", sender.getClientId(), result));
+}
 
+protected synchronized void handlePrivateMessage(ServerThread sender, long targetId, String message) {
+    String formatted = String.format("Server: PM from User[%s]: %s", sender.getClientId(), message);
+    sender.sendToClient(formatted);
+    ServerThread target = connectedClients.get(targetId);
+    if (target != null) {
+        target.sendToClient(formatted);
+    } else {
+        sender.sendToClient(String.format("Server: User[%s] not found", targetId));
+    }
+}
+
+protected synchronized void handleShuffleMessage(ServerThread sender, String text) {
+    List<Character> chars = new ArrayList<>();
+    for (char c : text.toCharArray()) {
+        chars.add(c);
+    }
+    Collections.shuffle(chars);
+    StringBuilder sb = new StringBuilder();
+    for (char c : chars) {
+        sb.append(c);
+    }
+    broadcast(null, String.format("Shuffled from User[%s]: %s", sender.getClientId(), sb.toString()));
+}
     public static void main(String[] args) {
         System.out.println("Server Starting");
         Server server = new Server();

@@ -159,6 +159,19 @@ public class ServerThread extends Thread {
                 String relevantText = String.join(" ", Arrays.copyOfRange(commandData, 2, commandData.length));
                 server.handleReverseText(this, relevantText);
                 return true;
+            case "flip":
+                server.handleCoinFlip(this);
+                return true;
+                case "pm":
+                  if (commandData.length < 4) return true;
+                long targetId = Long.parseLong(commandData[2].trim());
+                 String pmMessage = String.join(" ", Arrays.copyOfRange(commandData, 3,               commandData.length));
+    server.handlePrivateMessage(this, targetId, pmMessage);
+                  return true;
+            case "shuffle":
+       String shuffleInput = String.join(" ", Arrays.copyOfRange(commandData, 2,    commandData.length));
+               server.handleShuffleMessage(this, shuffleInput);
+    return true;
             default:
                 return false;
         }
