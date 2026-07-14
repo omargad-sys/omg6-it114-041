@@ -52,7 +52,13 @@ public class Scenario4 extends BaseClass {
     }
 }
 phrase = sb.toString();
-            placeholderForModifiedPhrase = phrase; 
+placeholderForModifiedPhrase = phrase;
+            int mid = phrase.length() / 2;
+            if (mid + 3 > phrase.length()) {
+                placeholderForMiddleCharacters = "Not enough characters";
+            } else {
+                placeholderForMiddleCharacters = phrase.substring(mid, mid + 3);
+}
             // End Solution Edits
             System.out.println(String.format("Index[%d] \"%s\" | Middle: \"%s\"",i, placeholderForModifiedPhrase, placeholderForMiddleCharacters));
         }
