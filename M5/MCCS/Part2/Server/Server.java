@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-
+import M5.MCCS.Part2.Common.Move;
 import M5.MCCS.Part2.Common.TextFX;
 import M5.MCCS.Part2.Common.TextFX.Color;
 
@@ -23,7 +23,10 @@ public enum Server {
     private boolean isRunning = true;
 
     private long nextClientId = 1; // simple client ID generator
-
+    //omg6 track active RPS games and which clients are in them 7/19/2026 
+    private final ConcurrentHashMap<Long, RPSGame> activeGames = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Long> clientToGameMap = new ConcurrentHashMap<>();
+    private long nextGameId = 1;
     private void info(String message) {
         System.out.println(TextFX.colorize(String.format("Server: %s", message), Color.YELLOW));
     }
@@ -112,8 +115,19 @@ public enum Server {
         serverThread.sendDisconnectTrigger();
         System.out.println(TextFX.colorize("Client " + serverThread.getDisplayName() + " disconnected.", Color.RED));
         connectedClients.remove(serverThread.getClientId());
+        removeGame(serverThread.getClientId());
         broadcastClientStatus(serverThread, false, false);
     }
+    private void removeGame(long clientId) {
+    if (!clientToGameMap.containsKey(clientId)) { return; }
+    long gameId = clientToGameMap.get(clientId);
+    RPSGame game = activeGames.get(gameId);
+    if (game != null) {
+        activeGames.remove(gameId);
+        clientToGameMap.remove(game.getPlayerAId());
+        clientToGameMap.remove(game.getPlayerBId());
+    }
+}
 
     // start region for handle*() methods ===================================
     // handle* methods are the interface ServerThread uses to trigger Server actions
@@ -136,7 +150,100 @@ public enum Server {
     protected synchronized void handleMessage(ServerThread sender, String text) {
         broadcast(sender, text);
     }
+    //omg6 RPS handlers; challenge validation, accept/decline, move resolution, and game cleanup 7/19/2026
+    protected synchronized void handleRPSChallenge(ServerThread sender, long targetId) {
+    if (!connectedClients.containsKey(targetId)) {
+        sender.sendMessage("Server: Player " + targetId + " is not connected.");
+        return;
+    }
+    if (targetId == sender.getClientId()) {
+        sender.sendMessage("Server: You cannot challenge yourself.");
+        return;
+    }
+    if (clientToGameMap.containsKey(sender.getClientId())) {
+        sender.sendMessage("Server: You are already in a game.");
+        return;
+    }
+    if (clientToGameMap.containsKey(targetId)) {
+        sender.sendMessage("Server: That player is already in a game.");
+        return;
+    }
+    long gameId = nextGameId++;
+    RPSGame game = new RPSGame(gameId, sender.getClientId(), targetId);
+    activeGames.put(gameId, game);
+    clientToGameMap.put(sender.getClientId(), gameId);
+    clientToGameMap.put(targetId, gameId);
+    ServerThread target = connectedClients.get(targetId);
+    target.sendMessage(String.format(
+        "Server: %s challenges you to Rock Paper Scissors! Type /accept or /decline.",
+        sender.getDisplayName()));
+    sender.sendMessage("Server: Challenge sent to " + target.getDisplayName() + ". Waiting for response...");
+}
+
+protected synchronized void handleRPSAccept(ServerThread sender, boolean accepted) {
+    Long gameId = clientToGameMap.get(sender.getClientId());
+    if (gameId == null) { sender.sendMessage("Server: You have no pending challenge."); return; }
+    RPSGame game = activeGames.get(gameId);
+    long opponentId = game.getOpponentId(sender.getClientId());
+    ServerThread opponent = connectedClients.get(opponentId);
+    if (accepted) {
+        sender.sendMessage("Server: Challenge accepted! Type /move rock, /move paper, or /move scissors.");
+        if (opponent != null) {
+            opponent.sendMessage(String.format("Server: %s accepted! Type /move rock, /move paper, or /move scissors.", sender.getDisplayName()));
+        }
+    } else {
+        sender.sendMessage("Server: You declined the challenge.");
+        if (opponent != null) {
+            opponent.sendMessage(String.format("Server: %s declined your challenge.", sender.getDisplayName()));
+        }
+        removeGame(sender.getClientId());
+    }
+}
+
+protected synchronized void handleRPSMove(ServerThread sender, Move move) {
+    Long gameId = clientToGameMap.get(sender.getClientId());
+    if (gameId == null) { sender.sendMessage("Server: You are not in a game."); return; }
+    RPSGame game = activeGames.get(gameId);
+    boolean updated = game.updateMove(sender.getClientId(), move);
+    if (!updated) { sender.sendMessage("Server: You already submitted a move this round."); return; }
+    sender.sendMessage("Server: Move received. Waiting for opponent...");
+    if (game.isComplete()) {
+        long opponentId = game.getOpponentId(sender.getClientId());
+        ServerThread opponent = connectedClients.get(opponentId);
+        Move opponentMove = game.getOpponentMove(sender.getClientId());
+        boolean senderWins = game.playerWins(sender.getClientId());
+        boolean opponentWins = game.playerWins(opponentId);
+        String senderResult, opponentResult;
+        if (!senderWins && !opponentWins) {
+            senderResult = String.format("Server: Tie! You both played %s.", move);
+            opponentResult = senderResult;
+        } else if (senderWins) {
+            senderResult = String.format("Server: You win! %s beats %s.", move, opponentMove);
+            opponentResult = String.format("Server: You lose! %s beats %s.", opponentMove, move);
+        } else {
+            senderResult = String.format("Server: You lose! %s beats %s.", opponentMove, move);
+            opponentResult = String.format("Server: You win! %s beats %s.", move, opponentMove);
+        }
+        sender.sendMessage(senderResult);
+        if (opponent != null) { opponent.sendMessage(opponentResult); }
+        removeGame(sender.getClientId());
+    }
+}
+
+protected synchronized void handleRPSCancel(ServerThread sender) {
+    Long gameId = clientToGameMap.get(sender.getClientId());
+    if (gameId == null) { sender.sendMessage("Server: You are not in a game."); return; }
+    RPSGame game = activeGames.get(gameId);
+    long opponentId = game.getOpponentId(sender.getClientId());
+    ServerThread opponent = connectedClients.get(opponentId);
+    removeGame(sender.getClientId());
+    sender.sendMessage("Server: You cancelled the game.");
+    if (opponent != null) {
+        opponent.sendMessage(String.format("Server: %s cancelled the game.", sender.getDisplayName()));
+    }
+}
     // end region for handle*() methods ===================================
+
 
     // start region for data broadcast ==============================
 
@@ -215,6 +322,7 @@ public enum Server {
             return;
         List<ServerThread> snapshot = new ArrayList<>(disconnectedBuffer);
         disconnectedBuffer.clear();
+        snapshot.forEach(st -> removeGame(st.getClientId()));
         snapshot.forEach(st -> broadcastClientStatus(st, false, false));
     }
 

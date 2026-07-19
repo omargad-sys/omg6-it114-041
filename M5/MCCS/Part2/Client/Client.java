@@ -10,7 +10,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import M5.MCCS.Part2.Common.Move;
+import M5.MCCS.Part2.Common.RPSPayload;
 import M5.MCCS.Part2.Common.ConnectionPayload;
 import M5.MCCS.Part2.Common.Payload;
 import M5.MCCS.Part2.Common.PayloadType;
@@ -46,8 +47,13 @@ public enum Client {
         QUIT("/quit"),
         USERS("/users"),
         REVERSE("/reverse"),
-        SET_NAME("/name");
-
+        SET_NAME("/name"),
+        // omg6 RPS commands 7/19/2026
+        RPS_CHALLENGE("/rps"),
+        MOVE("/move"),
+        ACCEPT("/accept"),
+        DECLINE("/decline"),
+        CANCEL("/cancel");
         private final String trigger;
 
         Command(String trigger) {
@@ -171,6 +177,38 @@ public enum Client {
                             TextFX.colorize("Name set to " + name + ".", Color.GREEN));
                 }
                 return true;
+                 case RPS_CHALLENGE:
+                String rpsArg = text.replace("/rps", "").trim();
+                if (rpsArg.isBlank()) {
+                    System.out.println("Usage: /rps <targetId>");
+                    return true;
+                }
+                try {
+                    long targetId = Long.parseLong(rpsArg);
+                    sendRPSChallenge(targetId);
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid ID. Usage: /rps <targetId>");
+                }
+                return true;
+            case MOVE:
+                String moveArg = text.replace("/move", "").trim();
+                Move m = Move.fromText(moveArg);
+                if (m == null) {
+                    System.out.println("Invalid move. Use: /move rock, /move paper, or /move scissors");
+                    return true;
+                }
+                sendRPSMove(m);
+                return true;
+            case ACCEPT:
+                sendRPSAccept(true);
+                return true;
+            case DECLINE:
+                sendRPSAccept(false);
+                return true;
+            case CANCEL:
+                sendRPSCancel();
+                return true;
+
             default:
                 return false;
         }
@@ -231,7 +269,35 @@ public enum Client {
         payload.setMessage(text);
         sendToServer(payload);
     }
+private void sendRPSChallenge(long targetUser) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_CHALLENGE);
+        payload.setTargetUser(targetUser);
+        sendToServer(payload);
+    }
 
+  
+    private void sendRPSMove(Move move) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_MOVE);
+        payload.setMove(move);
+        sendToServer(payload);
+    }
+
+    
+    private void sendRPSAccept(boolean accepted) throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_ACCEPT);
+        payload.setAccepted(accepted);
+        sendToServer(payload);
+    }
+
+    // omg6 Sends a cancel request 
+    private void sendRPSCancel() throws IOException {
+        RPSPayload payload = new RPSPayload();
+        payload.setPayloadType(PayloadType.RPS_CANCEL);
+        sendToServer(payload);
+    }
     private void sendToServer(Payload outgoingPayload) throws IOException {
         if (isConnected()) {
             out.writeObject(outgoingPayload);

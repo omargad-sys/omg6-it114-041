@@ -3,7 +3,8 @@ package M5.MCCS.Part2.Server;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.function.Consumer;
-
+import M5.MCCS.Part2.Common.Move;
+import M5.MCCS.Part2.Common.RPSPayload;
 import M5.MCCS.Part2.Common.ConnectionPayload;
 import M5.MCCS.Part2.Common.Constants;
 import M5.MCCS.Part2.Common.Payload;
@@ -59,6 +60,19 @@ public class ServerThread extends BaseServerThread {
             case REVERSE:
                 processReverse(incoming);
                 break;
+                 // omg6 RPS payload routing 7/19/2026
+            case RPS_CHALLENGE:
+                processRPSChallenge(incoming);
+                break;
+            case RPS_ACCEPT:
+                processRPSAccept(incoming);
+                break;
+            case RPS_MOVE:
+                processRPSMove(incoming);
+                break;
+            case RPS_CANCEL:
+                processRPSCancel(incoming);
+                break;
             default:
                 info("Received unsupported payload type: " + incoming.getPayloadType());
         }
@@ -94,6 +108,41 @@ public class ServerThread extends BaseServerThread {
         // TODO: could add validation for client name here (not blank, length limit,
         // profanity filter, etc)
         setClientName(((ConnectionPayload) incoming).getClientName());
+    }
+
+    private void processRPSChallenge(Payload incoming) {
+        info("Processing RPS challenge payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Expected RPSPayload for RPS_CHALLENGE, got: " + incoming.getClass());
+            return;
+        }
+        long targetId = ((RPSPayload) incoming).getTargetUser();
+        Server.INSTANCE.handleRPSChallenge(this, targetId);
+    }
+
+    private void processRPSAccept(Payload incoming) {
+        info("Processing RPS accept payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Expected RPSPayload for RPS_ACCEPT, got: " + incoming.getClass());
+            return;
+        }
+        boolean accepted = ((RPSPayload) incoming).isAccepted();
+        Server.INSTANCE.handleRPSAccept(this, accepted);
+    }
+
+    private void processRPSMove(Payload incoming) {
+        info("Processing RPS move payload");
+        if (!(incoming instanceof RPSPayload)) {
+            info("Expected RPSPayload for RPS_MOVE, got: " + incoming.getClass());
+            return;
+        }
+        Move move = ((RPSPayload) incoming).getMove();
+        Server.INSTANCE.handleRPSMove(this, move);
+    }
+
+    private void processRPSCancel(Payload incoming) {
+        info("Processing RPS cancel payload");
+        Server.INSTANCE.handleRPSCancel(this);
     }
     // End region for process*() methods ===================================
 
